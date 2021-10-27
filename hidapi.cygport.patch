@@ -1,7 +1,10 @@
 --- hidapi.cygport.orig	2015-02-06 11:38:59.000000000 +0900
-+++ hidapi.cygport	2021-10-27 12:48:11.311796100 +0900
-@@ -14,6 +14,9 @@
++++ hidapi.cygport	2021-10-27 13:08:33.971236800 +0900
+@@ -12,8 +12,12 @@
+ https://github.com/signal11/hidapi/commit/627f3aa478e8099e3660d6a429f1584eeca0724c.patch
+ https://github.com/signal11/hidapi/commit/171a521b91add62c19343100df62b15ecd8f3216.patch
  https://github.com/signal11/hidapi/commit/54eb31dc16dcc67d0b689ed947bc53a038608c0e.patch
++https://raw.githubusercontent.com/fmrns/hidapi-cygwin-libusb/5f7c7651b4bbc8b561ca7d584f85016fb8e4207b/hidapi-0.8.0-rc1-1.src.patch
  "
  
 -PKG_NAMES="libhidapi0 libhidapi-devel"
