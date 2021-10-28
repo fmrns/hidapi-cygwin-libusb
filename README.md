@@ -64,15 +64,15 @@ I have tried with V3.1.0.0. libusbK.dll is installed on %WINDIR%/system32.
 6. Install a device driver.
 
 Run c:/libusbK-dev-kit/libusbK-inf-wizard.exe and select WinUSB, the
-target device, Client installer, and Finish & Install Deriver now. The
-device is shown in the section 'Universal Serial Bus devices' in
+target device, 'Client installer,' and 'Finish & Install Driver now.'
+The device is shown in the section 'Universal Serial Bus devices' in
 Device Manager. You can select libusbK instead of WinUSB, and the
 section is 'libusbK Usb Devices' for it.
 
 7. That's all. Test your application.
 
 When you want to remove the libusbK device drivers, please remeber to
-click the check box saying "Uninstall Driver and Software".
+click the check box saying "Uninstall Driver and Software."
 
 
 ## libfido2
@@ -89,9 +89,17 @@ Key enrollment failed: invalid format
 
 libfido2 uses HIDAPI for FreeBSD, so forcing libfido2 to use HIDAPI on
 Windows may be what I want. Making libfido2 to use libusb 1.0 directly
-is the better solution for simplicity of composition.
+is the better solution for simplicity of composition. But
+[OpenSSH SK WinHello](https://github.com/tavrez/openssh-sk-winhello),
+which is a plug-in for ssh-sk-helper using WinHello API, is the best,
+since it works with default device driver.
+
 
 ### setup
+
+0. If you really want to use -sk key types without priviledge
+escalation on Windows, please leave here, and go to
+[OpenSSH SK WinHello](https://github.com/tavrez/openssh-sk-winhello).
 
 1. Install gcc-fortran, and *src* of libfido2 with setup-x86_64.exe
 
@@ -145,11 +153,10 @@ $ ldd /usr/bin/fido2-token
 
 Both WinUSB and libusbK drivers are expected to work properly. If your
 device has multiple interfaces with same Vendor ID and Product ID,
-select one of the interfaces binding to 'HidUsb,' and try again with
-other interfaces with 'HidUsb.' Do not select devices with, such as
-WUDFRd, and usbccgp.
+install drivers of all interfaces binding to 'HidUsb.' Do not select
+devices with, such as WUDFRd, and usbccgp.
 
-Now you can see the devices without priviledge.
+Now you can see the list of devices without priviledge.
 
 ```
 $ fido2-token -d -L
@@ -158,12 +165,15 @@ $ fido2-token -d -L
 0001:0013:00: vendor=0x1ea8, product=0xf025 (ExcelSecu EsecuFIDO HID)
 ```
 
-A Thetis key, which is not shown even by priviledged original
-fido2-token with hid.dll in my Windows environment, is also shown.
+A Thetis U2F key (not FIDO2), which is not shown even by priviledged
+original fido2-token with hid.dll in my Windows environment, is also
+shown.
 
 After removing drivers, these devices are shown as HID-compliant fido
 in Human Interface Device section in Device Manager.
 
 ## TODO
 
-Using libusb 1.0 directly may be better as described above.
+Using libusb 1.0 directly may be better as described above, but maybe
+no one wants. If all functionality of libfido2 can be implemented with
+WinHello API (I don't think so), it may help some people.
