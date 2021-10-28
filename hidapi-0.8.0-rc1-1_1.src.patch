@@ -1,6 +1,19 @@
 --- origsrc/hidapi-hidapi-0.8.0-rc1/Makefile.am	2013-10-07 07:43:37.000000000 +0900
-+++ src/hidapi-hidapi-0.8.0-rc1/Makefile.am	2021-10-27 12:43:17.856712100 +0900
-@@ -28,7 +28,7 @@ SUBDIRS += libusb
++++ src/hidapi-hidapi-0.8.0-rc1/Makefile.am	2021-10-28 09:43:10.255754800 +0900
+@@ -10,8 +10,12 @@ endif
+ if OS_LINUX
+ pkgconfig_DATA=pc/hidapi-hidraw.pc pc/hidapi-libusb.pc
+ else
++if OS_WINDOWS
++pkgconfig_DATA=pc/hidapi-hidraw.pc pc/hidapi-libusb.pc
++else
+ pkgconfig_DATA=pc/hidapi.pc
+ endif
++endif
+ 
+ SUBDIRS=
+ 
+@@ -28,7 +32,7 @@ SUBDIRS += libusb
  endif
  
  if OS_WINDOWS
@@ -9,7 +22,7 @@
  endif
  
  SUBDIRS += hidtest
-@@ -75,3 +75,7 @@ SCMCLEAN_DIR_TARGETS = \
+@@ -75,3 +79,8 @@ SCMCLEAN_DIR_TARGETS = \
  scm-clean: distclean
  	rm -f $(SCMCLEAN_TARGETS)
  	rm -Rf $(SCMCLEAN_DIR_TARGETS)
@@ -17,21 +30,23 @@
 +install-exec-hook:
 +	ln -s cyghidapi-hidraw-0.dll "$(DESTDIR)$(bindir)"/cyghidapi-0.dll
 +	ln -s libhidapi-hidraw.dll.a "$(DESTDIR)$(libdir)"/libhidapi.dll.a
++	ln -s hidapi-hidraw.pc       "$(DESTDIR)$(pkgconfigdir)"/hidapi.pc
 --- origsrc/hidapi-hidapi-0.8.0-rc1/configure.ac	2013-10-07 07:43:37.000000000 +0900
-+++ src/hidapi-hidapi-0.8.0-rc1/configure.ac	2021-10-27 11:29:50.695878700 +0900
-@@ -109,6 +109,10 @@ case $host in
++++ src/hidapi-hidapi-0.8.0-rc1/configure.ac	2021-10-28 10:02:51.043642400 +0900
+@@ -109,6 +109,11 @@ case $host in
  	os="windows"
  	threads="windows"
  	win_implementation="cygwin"
 +
 +	CFLAGS="$CFLAGS -I/usr/include/libusb-1.0"
 +	AC_CHECK_LIB([usb-1.0], [libusb_init], [LIBS_LIBUSB_PRIVATE="${LIBS_LIBUSB_PRIVATE} -lusb-1.0"], [hidapi_lib_error libusb-1.0])
++	AC_CHECK_HEADER([iconv.h])
 +	AC_CHECK_LIB([iconv], [libiconv_open], [LIBS_LIBUSB_PRIVATE="${LIBS_LIBUSB_PRIVATE} -liconv"], [hidapi_lib_error libiconv])
  	;;
  *)
  	AC_MSG_ERROR([HIDAPI is not supported on your operating system yet])
 --- origsrc/hidapi-hidapi-0.8.0-rc1/hidtest/Makefile.am	2013-10-07 07:43:37.000000000 +0900
-+++ src/hidapi-hidapi-0.8.0-rc1/hidtest/Makefile.am	2021-10-27 11:29:50.703874600 +0900
++++ src/hidapi-hidapi-0.8.0-rc1/hidtest/Makefile.am	2021-10-28 09:43:10.289734200 +0900
 @@ -9,6 +9,18 @@ hidtest_hidraw_LDADD = $(top_builddir)/l
  
  hidtest_libusb_SOURCES = hidtest.cpp
@@ -58,14 +73,15 @@
 +
 +endif
 --- origsrc/hidapi-hidapi-0.8.0-rc1/libusb/Makefile.am	2013-10-07 07:43:37.000000000 +0900
-+++ src/hidapi-hidapi-0.8.0-rc1/libusb/Makefile.am	2021-10-27 11:29:50.712870400 +0900
-@@ -14,6 +14,13 @@ libhidapi_la_LDFLAGS = $(LTLDFLAGS)
++++ src/hidapi-hidapi-0.8.0-rc1/libusb/Makefile.am	2021-10-28 13:05:57.867170000 +0900
+@@ -14,6 +14,14 @@ libhidapi_la_LDFLAGS = $(LTLDFLAGS)
  libhidapi_la_LIBADD = $(LIBS_LIBUSB)
  endif
  
 +if OS_WINDOWS
 +lib_LTLIBRARIES = libhidapi-libusb.la
 +libhidapi_libusb_la_SOURCES = hid.c
++libhidapi_libusb_la_CFLAGS = $(CFLAGS) -DINVASIVE_GET_USAGE
 +libhidapi_libusb_la_LDFLAGS = $(LTLDFLAGS)
 +libhidapi_libusb_la_LIBADD = $(LIBS_LIBUSB)
 +endif
@@ -74,7 +90,7 @@
  hdr_HEADERS = $(top_srcdir)/hidapi/hidapi.h
  
 --- origsrc/hidapi-hidapi-0.8.0-rc1/windows/Makefile.am	2013-10-07 07:43:37.000000000 +0900
-+++ src/hidapi-hidapi-0.8.0-rc1/windows/Makefile.am	2021-10-27 12:23:48.972199300 +0900
++++ src/hidapi-hidapi-0.8.0-rc1/windows/Makefile.am	2021-10-28 09:43:10.311728800 +0900
 @@ -1,8 +1,8 @@
 -lib_LTLIBRARIES = libhidapi.la
 -libhidapi_la_SOURCES = hid.c

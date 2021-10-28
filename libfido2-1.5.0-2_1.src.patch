@@ -1,0 +1,34 @@
+--- origsrc/libfido2/CMakeLists.txt	2020-10-20 21:27:26.000000000 +0900
++++ src/libfido2/CMakeLists.txt	2021-10-28 10:56:05.640003100 +0900
+@@ -32,6 +32,13 @@ add_definitions(-D_FIDO_PATCH=${FIDO_PAT
+ if(CYGWIN OR MSYS)
+ 	set(WIN32 1)
+ 	add_definitions(-DWINVER=0x0a00)
++	set(USE_HIDAPI ON)
++	set(HIDAPI_SUFFIX -libusb)
++	check_library_exists(rt clock_gettime "time.h" HAVE_CLOCK_GETTIME)
++	if(HAVE_CLOCK_GETTIME)
++		set(BASE_LIBRARIES ${BASE_LIBRARIES} rt)
++		add_definitions(-DHAVE_CLOCK_GETTIME)
++	endif()
+ endif()
+ 
+ if(WIN32)
+--- origsrc/libfido2/src/hid_hidapi.c	2020-10-20 21:27:26.000000000 +0900
++++ src/libfido2/src/hid_hidapi.c	2021-10-28 13:21:55.446543200 +0900
+@@ -221,10 +221,14 @@ is_fido(const struct hid_device_info *hd
+ 
+ 	return usage_page == 0xf1d0;
+ }
+-#elif defined(_WIN32) || defined(__APPLE__)
++#elif defined(_WIN32) || defined(__APPLE__) || defined(__CYGWIN__)
+ static bool
+ is_fido(const struct hid_device_info *hdi)
+ {
++	/* char *cs = wcs_to_cs(hdi->product_string);
++	fido_log_debug("%s: %x: VID:%x, PID:%x: %s", __func__,
++		       hdi->usage_page, hdi->vendor_id, hdi->product_id, cs);
++	if (cs) free(cs); */
+ 	return hdi->usage_page == 0xf1d0;
+ }
+ #else

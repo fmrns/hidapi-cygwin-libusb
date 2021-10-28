@@ -1,0 +1,23 @@
+--- libfido2.cygport.orig	2021-08-06 22:55:24.000000000 +0900
++++ libfido2.cygport	2021-10-28 10:54:47.788440400 +0900
+@@ -1,6 +1,6 @@
+ NAME="libfido2"
+ VERSION="1.5.0"
+-RELEASE="2"
++RELEASE="2_1"
+ HOMEPAGE="https://developers.yubico.com/libfido2/"
+ 
+ GIT_URI="https://github.com/Yubico/libfido2"
+@@ -18,10 +18,11 @@
+ libfido2 supports the FIDO U2F (CTAP 1) and FIDO 2.0 (CTAP 2) protocols."
+ 
+ libfido2_CATEGORY="Libs"
++libfido2_REQUIRES="libhidapi0"
+ libfido2_CONTENTS="usr/bin/"
+ 
+ libfido2_devel_CATEGORY="Devel"
+-libfido2_devel_REQUIRES="libcbor-devel"
++libfido2_devel_REQUIRES="libcbor-devel libhidapi0-devel"
+ libfido2_devel_CONTENTS="usr/include/ usr/lib/ usr/share"
+ 
+ inherit cmake
